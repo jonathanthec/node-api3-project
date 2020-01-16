@@ -11,20 +11,30 @@ router.post('/:id/posts', validateUserId, (req, res) => {
   // do your magic!
 });
 
-router.get('/', checkRole, (req, res) => {
+router.get('/', checkAdmin, (req, res) => {
   UserDB.get().then(users => {
     res.status(200).json(users)
   }).catch(() => {
-    res.status(500).json({ errorMessage: "Cannot access this information "})
+    res.status(500).json({ errorMessage: "an error occurred while accessing this information" })
   })
 });
 
 router.get('/:id', validateUserId, (req, res) => {
-  // do your magic!
+  const id = req.params.id;
+  UserDB.getById(id).then(user => {
+    res.status(200).json(user)
+  }).catch(() => {
+    res.status(500).json({ errorMessage: "an error occurred while accessing this information" })
+  })
 });
 
 router.get('/:id/posts', validateUserId, (req, res) => {
-  // do your magic!
+  const id = req.params.id;
+  UserDB.getUserPosts(id).then(posts => {
+    res.status(200).json(posts)
+  }).catch(() => {
+    res.status(500).json({ errorMessage: "an error occurred while accessing this information" })
+  })
 });
 
 router.delete('/:id', validateUserId, (req, res) => {
@@ -73,14 +83,12 @@ function validatePost(req, res, next) {
   next();
 }
 
-function checkRole(role) {
-  return function(req, res, next) {
-    if(req.headers.role === role) {
-      next();
-    }
-    else {
-      res.status(403).json({ message: "illegal access" });
-    }
+function checkAdmin(req, res, next) {
+  if(req.headers.role === "admin") {
+    return next();
+  }
+  else {
+    res.status(403).json({ message: "illegal access" });
   }
 }
 
