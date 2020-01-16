@@ -14,7 +14,7 @@ server.use(express.json());
 server.use(logger);
 
 server.use('/api/posts', postRouter);
-server.use('/api/user', userRouter);
+server.use('/api/users', userRouter);
 
 server.get('/', (req, res) => {
     res.json({ message: 'server up and running' });

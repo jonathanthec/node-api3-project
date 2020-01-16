@@ -7,34 +7,38 @@ router.post('/', (req, res) => {
   // do your magic!
 });
 
-router.post('/:id/posts', (req, res) => {
+router.post('/:id/posts', validateUserId, (req, res) => {
   // do your magic!
 });
 
-router.get('/', (req, res) => {
+router.get('/', checkRole, (req, res) => {
+  UserDB.get().then(users => {
+    res.status(200).json(users)
+  }).catch(() => {
+    res.status(500).json({ errorMessage: "Cannot access this information "})
+  })
+});
+
+router.get('/:id', validateUserId, (req, res) => {
   // do your magic!
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id/posts', validateUserId, (req, res) => {
   // do your magic!
 });
 
-router.get('/:id/posts', (req, res) => {
+router.delete('/:id', validateUserId, (req, res) => {
   // do your magic!
 });
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
-});
-
-router.put('/:id', (req, res) => {
+router.put('/:id', validateUserId, (req, res) => {
   // do your magic!
 });
 
 //custom middleware
 
 function validateUserId(req, res, next) {
-  const id = req.params.id;
+  const id = req.params.id || req.body.user_id;
 
   UserDB.getById(id).then(user => {
     if(user) {
@@ -67,6 +71,17 @@ function validatePost(req, res, next) {
     res.status(400).json({ message: "missing required text field" });
   }
   next();
+}
+
+function checkRole(role) {
+  return function(req, res, next) {
+    if(req.headers.role === role) {
+      next();
+    }
+    else {
+      res.status(403).json({ message: "illegal access" });
+    }
+  }
 }
 
 module.exports = router;
