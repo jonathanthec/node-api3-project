@@ -48,11 +48,19 @@ router.get('/:id/posts', validateUserId, (req, res) => {
 });
 
 router.delete('/:id', validateUserId, (req, res) => {
-  // do your magic!
+  const user = req.user;
+  UserDB.remove(user.id).then(indicator => {
+    if(indicator>0) {
+      res.status(200).json({ message: "account successfully deleted", user })
+    }
+  }).catch(() => {
+    res.status(500).json({ errorMessage: "an error occurred while deleting user" })
+  })
 });
 
 router.put('/:id', validateUserId, (req, res) => {
-  // do your magic!
+  const user = req.user;
+  
 });
 
 //custom middleware
