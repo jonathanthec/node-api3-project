@@ -3,12 +3,22 @@ const router = express.Router();
 const UserDB = require('./userDb');
 const PostDB = require('../posts/postDb');
 
-router.post('/', (req, res) => {
-  // do your magic!
+router.post('/', validateUser, (req, res) => {
+  const newUser = req.body;
+  UserDB.insert(newUser).then(user => {
+    res.status(201).json(user)
+  }).catch(() => {
+    res.status(500).json({ errorMessage: "an error occurred while creating user "})
+  })
 });
 
-router.post('/:id/posts', validateUserId, (req, res) => {
-  // do your magic!
+router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
+  const newPost = req.body;
+  PostDB.insert(newPost).then(post => {
+    res.status(201).json(post)
+  }).catch(() => {
+    res.status(500).json({ errorMessage: "an error occured while creating a post" })
+  })
 });
 
 router.get('/', checkAdmin, (req, res) => {
@@ -80,6 +90,7 @@ function validatePost(req, res, next) {
   if(!req.body.text) {
     res.status(400).json({ message: "missing required text field" });
   }
+  req.body.user_id = req.user.id;
   next();
 }
 
