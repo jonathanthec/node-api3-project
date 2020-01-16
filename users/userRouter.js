@@ -60,7 +60,21 @@ router.delete('/:id', validateUserId, (req, res) => {
 
 router.put('/:id', validateUserId, (req, res) => {
   const user = req.user;
-  
+  const newUser = req.body;
+  UserDB.update(user.id, newUser).then(indicator => {
+    if(indicator>0) {
+      UserDB.getById(user.id).then(changedUser => {
+        res.status(200).json({ message: "user info changed", changedUser })
+      }).catch(() => {
+        res.status(500).json({ errorMessage: "an error has occurred" })
+      })
+    }
+    else {
+      res.status(500).json({ errorMessage: "an error has occurred" })
+    }
+  }).catch(() => {
+    res.status(500).json({ errorMessage: "cannot change user" })
+  })
 });
 
 //custom middleware
